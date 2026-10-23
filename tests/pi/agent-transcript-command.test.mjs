@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { agentsReport, listing } from "../../plugins/pstack/pi/agent-text.ts";
+import { agentsReport, listing } from "../../plugins/laurenify/pi/agent-text.ts";
 
 const shellTest = process.platform === "win32" ? test.skip : test;
 
@@ -23,7 +23,7 @@ const captureArgs = 'pi() { printf "%s\\n" "$@"; }; tail() { printf "%s\\n" "$@"
 for (const status of ["running", "completed"]) {
   for (const directory of ["plain", "Jane Doe", "O'Brien", "literal$PSTACK_TEST_EXPAND", "中文 (notes)"]) {
     shellTest(`${status} transcript command passes ${directory} as one literal path`, () => {
-      const root = mkdtempSync(join(tmpdir(), "pstack-command-"));
+      const root = mkdtempSync(join(tmpdir(), "laurenify-command-"));
       try {
         mkdirSync(join(root, directory));
         const transcript = join(root, directory, "session.jsonl");

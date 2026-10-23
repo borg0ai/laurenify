@@ -5,11 +5,11 @@ import { homedir, tmpdir } from "node:os";
 import { dirname, join, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { defaultSettings, PSTACK_STATE_DIR } from "../plugins/pstack/pi/config.ts";
-import { audit, classify, defaultTranscriptRoots, duSize, lastChats, pathSpellings, symlinkTargets } from "../plugins/pstack/skills/poteto-mode/scripts/worktree-audit.mjs";
+import { defaultSettings, PSTACK_STATE_DIR } from "../plugins/laurenify/pi/config.ts";
+import { audit, classify, defaultTranscriptRoots, duSize, lastChats, pathSpellings, symlinkTargets } from "../plugins/laurenify/skills/poteto-mode/scripts/worktree-audit.mjs";
 import { removeDuring } from "./remove-during.mjs";
 
-const script = join(import.meta.dir, "../plugins/pstack/skills/poteto-mode/scripts/worktree-audit.mjs");
+const script = join(import.meta.dir, "../plugins/laurenify/skills/poteto-mode/scripts/worktree-audit.mjs");
 // node's ESM loader takes a file URL, not a drive-lettered path.
 const scriptUrl = pathToFileURL(script).href;
 const noNode = spawnSync("node", ["--version"]).status !== 0;
@@ -632,13 +632,13 @@ describe("default transcripts roots", () => {
     defaultTranscriptRoots({ ...options, home, stat: (path) => exists(gitPath(path)) ? {} : undefined }).map(gitPath);
 
   test("every runtime directory that exists, Pi's under PI_CODING_AGENT_DIR when set", () => {
-    const present = new Set([claude, "/home/u/.codex/sessions", "/pi/sessions", "/pi/pstack", "/home/u/.pi/agent/sessions"]);
+    const present = new Set([claude, "/home/u/.codex/sessions", "/pi/sessions", "/pi/laurenify", "/home/u/.pi/agent/sessions"]);
     const exists = (path) => present.has(path);
     expect(roots({ env: { PI_CODING_AGENT_DIR: "/pi" }, exists })).toEqual([
       claude,
       "/home/u/.codex/sessions",
       "/pi/sessions",
-      "/pi/pstack",
+      "/pi/laurenify",
     ]);
     expect(roots({ env: {}, exists })).toEqual([claude, "/home/u/.codex/sessions", "/home/u/.pi/agent/sessions"]);
   });

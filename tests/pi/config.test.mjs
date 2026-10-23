@@ -4,7 +4,7 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:f
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { checkEffort, defaultSettings, loadAgentTypes, readSheet } from "../../plugins/pstack/pi/config.ts";
+import { checkEffort, defaultSettings, loadAgentTypes, readSheet } from "../../plugins/laurenify/pi/config.ts";
 import { chmodDeniesReads } from "../session-hook-sheets.mjs";
 
 test("depth comes from the reader on each use and PI_CODING_AGENT_DIR moves the sheet", () => {
@@ -17,15 +17,15 @@ test("depth comes from the reader on each use and PI_CODING_AGENT_DIR moves the 
   expect(defaultSettings(() => 0, {}).agentDir).toBe(join(homedir(), ".pi", "agent"));
 });
 
-test("an agent file loads as pstack:<name> with its body and model, and an effort is checked against models.json", () => {
-  const root = mkdtempSync(join(tmpdir(), "pstack-agents-"));
+test("an agent file loads as laurenify:<name> with its body and model, and an effort is checked against models.json", () => {
+  const root = mkdtempSync(join(tmpdir(), "laurenify-agents-"));
   try {
     const models = { available: [], efforts: ["low"], pi: { fallback: "anthropic", models: {} } };
     writeFileSync(join(root, "models.json"), JSON.stringify(models));
     mkdirSync(join(root, "agents"));
     writeFileSync(join(root, "agents", "slow.md"), "---\nmodel: opus\n---\nbody\n");
     const settings = { pluginRoot: root, modelsFile: join(root, "models.json") };
-    expect(loadAgentTypes(settings).get("pstack:slow")).toEqual({ body: "body", model: "opus" });
+    expect(loadAgentTypes(settings).get("laurenify:slow")).toEqual({ body: "body", model: "opus" });
     expect(checkEffort("low", settings)).toBe("low");
     expect(() => checkEffort("medium", settings)).toThrow('effort "medium" is not one of low');
   } finally {
@@ -34,7 +34,7 @@ test("an agent file loads as pstack:<name> with its body and model, and an effor
 });
 
 test.skipIf(!chmodDeniesReads)("a sheet in a directory that cannot be searched reads as absent until it can", () => {
-  const dir = mkdtempSync(join(tmpdir(), "pstack-sheet-"));
+  const dir = mkdtempSync(join(tmpdir(), "laurenify-sheet-"));
   try {
     writeFileSync(join(dir, "pstack-models.md"), "session hook: off\n");
     chmodSync(dir, 0o000);

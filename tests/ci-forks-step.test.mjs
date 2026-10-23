@@ -10,7 +10,7 @@ const step = workflow.jobs.forks.steps.find(({ name }) => name === "Check every 
 // GitHub runs a step body as `bash -e <file>`. The bun on the path is a stub
 // that records each sync it is asked for and fails for one component.
 function runStep(upstream, failing = "") {
-  const dir = mkdtempSync(join(tmpdir(), "pstack-forks-step-"));
+  const dir = mkdtempSync(join(tmpdir(), "laurenify-forks-step-"));
   try {
     const calls = join(dir, "calls");
     mkdirSync(join(dir, "tools"));

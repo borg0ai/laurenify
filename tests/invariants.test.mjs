@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 
 import { agentSkills, pluginAgentPaths, validatePluginLayout } from "../tools/generate.mjs";
 
-const shippedAgents = pluginAgentPaths(fileURLToPath(new URL("../plugins/pstack", import.meta.url))).map((p) =>
+const shippedAgents = pluginAgentPaths(fileURLToPath(new URL("../plugins/laurenify", import.meta.url))).map((p) =>
   basename(p, ".md"),
 );
 
@@ -53,12 +53,12 @@ describe("static plugin invariants", () => {
 
   test("a commands/ directory fails", () => {
     const root = plugin((r) => mkdirSync(join(r, "commands"), { recursive: true }));
-    expect(() => check(root)).toThrow("plugins/pstack/commands/ exists");
+    expect(() => check(root)).toThrow("plugins/laurenify/commands/ exists");
   });
 
   test("a root plugin.json fails", () => {
     const root = plugin((r) => writeFileSync(join(r, "plugin.json"), "{}\n"));
-    expect(() => check(root)).toThrow("plugins/pstack/plugin.json exists");
+    expect(() => check(root)).toThrow("plugins/laurenify/plugin.json exists");
   });
 
   test("an agents list in the Claude plugin manifest fails", () => {
@@ -90,7 +90,7 @@ describe("static plugin invariants", () => {
       skill(r, "caller", "", 'Spawn with `subagent_type: "poteto-agent"`.\n');
     });
     expect(() => check(root)).toThrow(
-      'skills/caller/SKILL.md:6: subagent_type: "poteto-agent" (use "pstack:poteto-agent")',
+      'skills/caller/SKILL.md:6: subagent_type: "poteto-agent" (use "laurenify:poteto-agent")',
     );
   });
 
@@ -105,7 +105,7 @@ describe("static plugin invariants", () => {
       agent(r, "poteto-agent");
       skill(r, "caller", "", `Spawn with ${line}.\n`);
     });
-    expect(() => check(root)).toThrow('skills/caller/SKILL.md:6: subagent_type: "poteto-agent" (use "pstack:poteto-agent")');
+    expect(() => check(root)).toThrow('skills/caller/SKILL.md:6: subagent_type: "poteto-agent" (use "laurenify:poteto-agent")');
   });
 
   test.each([
@@ -123,14 +123,14 @@ describe("static plugin invariants", () => {
     const root = plugin((r) => shippedAgents.forEach((name) => agent(r, name)));
     for (const name of shippedAgents) {
       skill(root, "caller", "", `${spelling.replace("NAME", name)}\n`);
-      expect(() => check(root)).toThrow(`skills/caller/SKILL.md:6: subagent_type: "${name}" (use "pstack:${name}")`);
+      expect(() => check(root)).toThrow(`skills/caller/SKILL.md:6: subagent_type: "${name}" (use "laurenify:${name}")`);
     }
   });
 
   test.each([
-    'subagent_type: "pstack:poteto-agent"',
-    "subagent_type: pstack:poteto-agent",
-    "subagent_type: `pstack:poteto-agent`",
+    'subagent_type: "laurenify:poteto-agent"',
+    "subagent_type: laurenify:poteto-agent",
+    "subagent_type: `laurenify:poteto-agent`",
     'subagent_type: "poteto-agent-extra"',
     "subagent_type: poteto-agent_v2",
     "subagent_type: poteto-agent.local",

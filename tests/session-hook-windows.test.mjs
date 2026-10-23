@@ -7,13 +7,13 @@ import { fileURLToPath } from "node:url";
 
 import { sheetCases, writeSheet } from "./session-hook-sheets.mjs";
 
-const pluginRoot = fileURLToPath(new URL("../plugins/pstack/", import.meta.url));
+const pluginRoot = fileURLToPath(new URL("../plugins/laurenify/", import.meta.url));
 const manifest = JSON.parse(readFileSync(join(pluginRoot, ".codex-plugin/plugin.json"), "utf8"));
 const handler = JSON.parse(readFileSync(join(pluginRoot, manifest.hooks), "utf8")).hooks.SessionStart[0].hooks[0];
 const mandate = readFileSync(join(pluginRoot, "hooks/session-start-context.md"), "utf8");
 
 function runHook({ sheet, codexHome, homeSheet, context = mandate, host = "cmd" } = {}) {
-  const fixture = mkdtempSync(join(tmpdir(), "pstack windows hook "));
+  const fixture = mkdtempSync(join(tmpdir(), "laurenify windows hook "));
   try {
     const plugin = join(fixture, "plugin with spaces");
     const profile = join(fixture, "user profile");

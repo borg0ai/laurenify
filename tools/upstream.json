@@ -3,7 +3,7 @@
   "components": {
     "pstack": {
       "upstreamPath": "pstack",
-      "localPath": "plugins/pstack",
+      "localPath": "plugins/laurenify",
       "sha": "7b353f78f6ec193bdbe48ed8059444eb09b6878e",
       "exclude": [
         ".cursor-plugin/",
@@ -20,7 +20,7 @@
     },
     "cursor-team-kit": {
       "upstreamPath": "cursor-team-kit/skills",
-      "localPath": "plugins/pstack/skills",
+      "localPath": "plugins/laurenify/skills",
       "sha": "e46364b8be46000b7df0f260550cd712afbb8d36",
       "exclude": [
         "check-compiler-errors/",
@@ -39,7 +39,7 @@
     },
     "thermos": {
       "upstreamPath": "thermos",
-      "localPath": "plugins/pstack",
+      "localPath": "plugins/laurenify",
       "sha": "118e73b0e196e4d49d5aade7ce6dd8985a621f68",
       "exclude": [
         ".cursor-plugin/",

@@ -1,18 +1,18 @@
 {
-  "name": "pstack",
+  "name": "laurenify",
   "private": true,
-  "version": "0.9.101",
-  "description": "If you want to go fast, go deep first. pstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence. Pi package of the Claude Code plugin; skills are shared, tool names resolve via skills/poteto-mode/references/pi-tools.md. Original pstack by Lauren Tan (poteto).",
+  "version": "0.9.102",
+  "description": "If you want to go fast, go deep first. laurenify helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence. Pi package of the Claude Code plugin; skills are shared, tool names resolve via skills/poteto-mode/references/pi-tools.md. Original pstack by Lauren Tan (poteto).",
   "author": {
     "name": "Michael Denyer",
     "url": "https://github.com/michael-denyer"
   },
-  "homepage": "https://github.com/michael-denyer/pstack-claude",
-  "repository": "https://github.com/michael-denyer/pstack-claude",
+  "homepage": "https://github.com/borg0ai/laurenify",
+  "repository": "https://github.com/borg0ai/laurenify",
   "license": "MIT",
   "keywords": [
     "pi-package",
-    "pstack",
+    "laurenify",
     "poteto-mode",
     "workflow",
     "principles",
@@ -31,10 +31,10 @@
   ],
   "pi": {
     "skills": [
-      "./plugins/pstack/skills"
+      "./plugins/laurenify/skills"
     ],
     "extensions": [
-      "./plugins/pstack/pi/index.ts"
+      "./plugins/laurenify/pi/index.ts"
     ]
   },
   "peerDependencies": {

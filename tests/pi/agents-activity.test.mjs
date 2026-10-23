@@ -1,5 +1,5 @@
 // What a user can see of a running agent: list_agents activity, the footer
-// status line, and /pstack-agents.
+// status line, and /laurenify-agents.
 import { describe, expect, test } from "bun:test";
 
 import { listAgents, restore, useWorld, waitFor } from "./harness.mjs";
@@ -46,7 +46,7 @@ describe("agent activity", () => {
     const { pi, ctx } = setup({ script: { default: [...calls.map((call) => ({ toolStart: call })), { sleep: 30000 }] }, ctx: { hasUI: true, ui } });
     await launch(pi, ctx);
     await waitFor(async () => (await listAgents(pi, ctx))[0].activity?.tool.args.startsWith("xxx"));
-    const shown = ui.statuses.map((s) => s.text?.replace(/^pstack: 1 running · \S+ /, ""));
+    const shown = ui.statuses.map((s) => s.text?.replace(/^laurenify: 1 running · \S+ /, ""));
     expect(shown).toEqual(expect.arrayContaining(["bash: ls", "grep: TODO", "read: /a/b.ts", "edit: /c.ts", 'custom: {"n":1}']));
     const { tool } = (await listAgents(pi, ctx))[0].activity;
     expect(tool.args).toBe(`${"x".repeat(79)}…`);
@@ -90,11 +90,11 @@ describe("status line", () => {
     const { pi, ctx } = setup({ script: { default: [lsStep, { sleep: 400 }, { reply: "done" }] }, ctx: { hasUI: true, ui } });
     const { details } = await launch(pi, ctx);
     const id8 = details.agentId.slice(0, 8);
-    await waitFor(() => ui.statuses.some((s) => s.text === `pstack: 1 running · ${id8} bash: ls -la /tmp`));
-    expect(ui.statuses[0]).toEqual({ key: "pstack-agents", text: `pstack: 1 running` });
+    await waitFor(() => ui.statuses.some((s) => s.text === `laurenify: 1 running · ${id8} bash: ls -la /tmp`));
+    expect(ui.statuses[0]).toEqual({ key: "laurenify-agents", text: `laurenify: 1 running` });
 
     await waitFor(() => pi.messages.length === 1);
-    expect(ui.statuses.at(-1)).toEqual({ key: "pstack-agents", text: undefined });
+    expect(ui.statuses.at(-1)).toEqual({ key: "laurenify-agents", text: undefined });
   });
 
   test("counts every running agent", async () => {
@@ -102,7 +102,7 @@ describe("status line", () => {
     const { pi, ctx } = setup({ script: { default: [{ sleep: 30000 }] }, ctx: { hasUI: true, ui } });
     await launch(pi, ctx, "one");
     await launch(pi, ctx, "two");
-    expect(ui.statuses.at(-1).text).toBe("pstack: 2 running");
+    expect(ui.statuses.at(-1).text).toBe("laurenify: 2 running");
   });
 
   test("is never set in a child, whose depth is above zero", async () => {
@@ -130,7 +130,7 @@ describe("status line", () => {
 
     await waitFor(() => ui.statuses.some((s) => s.text?.endsWith("bash: ls -la /tmp")));
     await waitFor(() => reloaded.messages.length === 1);
-    expect(ui.statuses.at(-1)).toEqual({ key: "pstack-agents", text: undefined });
+    expect(ui.statuses.at(-1)).toEqual({ key: "laurenify-agents", text: undefined });
   });
 
   test("clears at session_shutdown", async () => {
@@ -139,18 +139,18 @@ describe("status line", () => {
     await launch(pi, ctx);
     await waitFor(() => ui.statuses.some((s) => s.text?.includes("bash")));
     await pi.emit("session_shutdown", { reason: "quit" }, ctx);
-    expect(ui.statuses.at(-1)).toEqual({ key: "pstack-agents", text: undefined });
+    expect(ui.statuses.at(-1)).toEqual({ key: "laurenify-agents", text: undefined });
   });
 });
 
-describe("/pstack-agents", () => {
-  const run = (pi, ctx) => pi.commands.get("pstack-agents").handler("", ctx);
+describe("/laurenify-agents", () => {
+  const run = (pi, ctx) => pi.commands.get("laurenify-agents").handler("", ctx);
 
   test("says so when no agent has run", async () => {
     const ui = recordingUi();
     const { pi, ctx } = setup({ ctx: { ui } });
     await run(pi, ctx);
-    expect(ui.notices).toEqual([{ text: "No pstack agents in this session.", level: "info" }]);
+    expect(ui.notices).toEqual([{ text: "No laurenify agents in this session.", level: "info" }]);
   });
 
   test("shows a running agent's activity and how to follow its transcript, without messaging the model", async () => {

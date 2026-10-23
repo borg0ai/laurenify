@@ -32,7 +32,7 @@ mappingCoverage(muse, [
   ["plugin-dev", "`plugin-dev:skill-development`"],
   [".claude/skills", "`.claude/skills/`"],
   ["CLAUDE.md", "`CLAUDE.md`"],
-  ["pstack:poteto-agent", "`pstack:poteto-agent`"],
+  ["laurenify:poteto-agent", "`laurenify:poteto-agent`"],
   ["general-purpose", "`general-purpose`"],
 ]);
 

@@ -106,7 +106,7 @@ jobs:
           while IFS= read -r path; do port_only[$path]=1; done < <(
             awk '/^port-only: / { listed = 1; next } listed && /^  / { print $1; next } { listed = 0 }' "$RUNNER_TEMP"/sync-*.txt
           )
-          git diff --name-only "$BASE_SHA" HEAD -- plugins/pstack/skills |
+          git diff --name-only "$BASE_SHA" HEAD -- plugins/laurenify/skills |
             while IFS= read -r path; do
               if [[ -v forks[$path] ]]; then
                 echo "::warning file=$path::Declared fork changed. Update its why in tools/forks.json if the edit changes what the fork does."
@@ -128,10 +128,10 @@ jobs:
       # generated job already validated the source tree's links and prose.
       - name: Install the skills tree with the skills CLI
         run: |
-          npx --yes skills@1.5.23 add ./plugins/pstack/skills \
+          npx --yes skills@1.5.23 add ./plugins/laurenify/skills \
             --skill '*' --agent codex --yes --copy
       - name: Compare the installed skills tree with the source
-        run: diff -qr plugins/pstack/skills .agents/skills
+        run: diff -qr plugins/laurenify/skills .agents/skills
 
   pi-types:
     name: Pi extension types
@@ -169,7 +169,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: plugins/pstack/skills/poteto-mode/scripts
+        working-directory: plugins/laurenify/skills/poteto-mode/scripts
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

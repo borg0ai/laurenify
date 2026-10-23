@@ -1,16 +1,16 @@
 {
-  "name": "pstack-claude",
+  "name": "laurenify",
   "owner": {
     "name": "Michael Denyer",
     "url": "https://github.com/michael-denyer"
   },
-  "description": "Claude Code port of poteto's pstack. Rigorous agent workflows with Cursor primitives translated to Claude Code equivalents.",
+  "description": "Laurenify, a Claude Code port of Lauren Tan's pstack. Rigorous agent workflows with Cursor primitives translated to Claude Code equivalents.",
   "plugins": [
     {
-      "name": "pstack",
-      "source": "./plugins/pstack",
-      "description": "If you want to go fast, go deep first. pstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence. Original pstack by Lauren Tan (poteto).",
-      "version": "0.9.101"
+      "name": "laurenify",
+      "source": "./plugins/laurenify",
+      "description": "If you want to go fast, go deep first. laurenify helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence. Original pstack by Lauren Tan (poteto).",
+      "version": "0.9.102"
     }
   ]
 }

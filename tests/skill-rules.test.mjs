@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const skillsDir = fileURLToPath(new URL("../plugins/pstack/skills", import.meta.url));
+const skillsDir = fileURLToPath(new URL("../plugins/laurenify/skills", import.meta.url));
 
 const rules = [
   {

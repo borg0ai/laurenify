@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { findPiPackage, piDependency } from "../../tools/pi-package.mjs";
 
 const root = join(import.meta.dir, "../..");
-const piModels = JSON.parse(readFileSync(join(root, "plugins/pstack/models.json"), "utf8")).pi.models;
+const piModels = JSON.parse(readFileSync(join(root, "plugins/laurenify/models.json"), "utf8")).pi.models;
 
 function installedCatalog() {
   const piDir = findPiPackage();

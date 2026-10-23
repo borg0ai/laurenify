@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
-import { ensureWorktree, planWorktree, settleWorktree } from "../../plugins/pstack/pi/worktree.ts";
+import { ensureWorktree, planWorktree, settleWorktree } from "../../plugins/laurenify/pi/worktree.ts";
 
 function git(cwd, ...args) {
   const result = spawnSync("git", args, { cwd, encoding: "utf8" });
@@ -14,12 +14,12 @@ function git(cwd, ...args) {
 }
 
 function withWorktree(run, visibility = "no") {
-  const repo = mkdtempSync(join(tmpdir(), "pstack status config "));
+  const repo = mkdtempSync(join(tmpdir(), "laurenify status config "));
   try {
     git(repo, "init", "-q", "-b", "main");
     for (const [name, value] of [
-      ["user.name", "pstack test"],
-      ["user.email", "pstack-test@example.invalid"],
+      ["user.name", "laurenify test"],
+      ["user.email", "laurenify-test@example.invalid"],
       ["commit.gpgsign", "false"],
       ["core.logAllRefUpdates", "true"],
       ["status.showUntrackedFiles", visibility],

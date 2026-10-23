@@ -12,7 +12,7 @@ import { markdownFiles } from "../tools/validate-skills.mjs";
 import { mappingCoverage } from "./mapping-coverage.mjs";
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
-const skillsDir = join(repoRoot, "plugins/pstack/skills");
+const skillsDir = join(repoRoot, "plugins/laurenify/skills");
 const mappingPath = join(skillsDir, "poteto-mode/references/copilot-tools.md");
 const mapping = readFileSync(mappingPath, "utf8");
 const models = loadModels();
@@ -38,8 +38,8 @@ mappingCoverage(RUNTIMES.find((runtime) => runtime.name === "GitHub Copilot"), [
   ["~/.claude/orchestrate", "`~/.claude/orchestrate/`"],
   ["CLAUDE.md", "`CLAUDE.md`"],
   ["mcp__", "`mcp__`"],
-  ["pstack:poteto-agent", "`pstack:poteto-agent`"],
-  ["pstack:comment-sicko", "`pstack:comment-sicko`"],
+  ["laurenify:poteto-agent", "`laurenify:poteto-agent`"],
+  ["laurenify:comment-sicko", "`laurenify:comment-sicko`"],
   ["general-purpose", "`general-purpose`"],
 ]);
 
@@ -95,7 +95,7 @@ describe("Copilot preambles", () => {
   });
 });
 
-// Copilot's ask_user is single-select with one question per call, and pstack
+// Copilot's ask_user is single-select with one question per call, and laurenify
 // ships no Copilot models, so setup asks tier by tier from choice lists.
 describe("Copilot setup questions", () => {
   const setupDir = join(skillsDir, "setup-pstack");

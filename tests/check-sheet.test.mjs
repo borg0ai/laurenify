@@ -8,19 +8,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const pluginRoot = fileURLToPath(new URL("../plugins/pstack/", import.meta.url));
+const pluginRoot = fileURLToPath(new URL("../plugins/laurenify/", import.meta.url));
 const script = join(pluginRoot, "skills/setup-pstack/scripts/check-sheet.sh");
 const models = JSON.parse(readFileSync(join(pluginRoot, "models.json"), "utf8"));
 const roles = models.roles.map((r) => r.role);
 
-const home = mkdtempSync(join(tmpdir(), "pstack-check-sheet-"));
+const home = mkdtempSync(join(tmpdir(), "laurenify-check-sheet-"));
 afterAll(() => rmSync(home, { recursive: true, force: true }));
 const sheetPath = join(home, "pstack-models.md");
 
 const PANEL = "claude-opus-5, gpt-5.5 @xhigh, gemini-3.8-flash";
 const lines = (set = {}) =>
   models.roles.filter((r) => set[r.role] !== null).map(({ role, models: tier }) => `${role}: ${set[role] ?? (tier === "panel" ? PANEL : "claude-sonnet-5")}`);
-const sheet = (set, extra = []) => ["# pstack model overrides", "", ...lines(set), ...extra, "session hook: on", ""].join("\n");
+const sheet = (set, extra = []) => ["# laurenify model overrides", "", ...lines(set), ...extra, "session hook: on", ""].join("\n");
 
 function check(text, env = {}, args = [sheetPath]) {
   if (text !== undefined) writeFileSync(sheetPath, text);

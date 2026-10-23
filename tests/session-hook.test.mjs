@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { agentSkills } from "../tools/generate.mjs";
 import { sheetCases, writeSheet } from "./session-hook-sheets.mjs";
 
-const pluginRoot = fileURLToPath(new URL("../plugins/pstack/", import.meta.url));
+const pluginRoot = fileURLToPath(new URL("../plugins/laurenify/", import.meta.url));
 const mandate = readFileSync(join(pluginRoot, "hooks/session-start-context.md"), "utf8");
 const codexManifest = JSON.parse(readFileSync(join(pluginRoot, ".codex-plugin/plugin.json"), "utf8"));
 const copilotManifest = JSON.parse(readFileSync(join(pluginRoot, ".github/plugin/plugin.json"), "utf8"));
@@ -53,7 +53,7 @@ const runtimes = {
 };
 
 function runHook(runtime, sheet, command = sessionStart[runtimes[runtime].hooks].hooks[0].command) {
-  const home = mkdtempSync(join(tmpdir(), "pstack-hook-"));
+  const home = mkdtempSync(join(tmpdir(), "laurenify-hook-"));
   const { sheetDir, env } = runtimes[runtime];
   const sheetRoot = join(home, sheetDir);
   if (sheet !== null) {
@@ -82,7 +82,7 @@ describe("SessionStart hook", () => {
   });
 
   test("names only skills that exist", () => {
-    const named = [...mandate.matchAll(/(?:pstack:|`\/)([a-z0-9-]+)/g)].map((m) => m[1]);
+    const named = [...mandate.matchAll(/(?:laurenify:|`\/)([a-z0-9-]+)/g)].map((m) => m[1]);
     const skills = new Set(agentSkills(join(pluginRoot, "skills")).map(({ name }) => name));
     expect(named).toContain("poteto-mode");
     expect(named.filter((name) => !skills.has(name))).toEqual([]);
@@ -139,7 +139,7 @@ function context(out, starts) {
   expect(additionalContext.startsWith(mandate.slice(0, at))).toBe(true);
   expect(additionalContext.endsWith(`\n${mandate.slice(at)}`)).toBe(true);
   const notes = additionalContext.slice(at, additionalContext.length - mandate.length + at - 1);
-  expect(notes.startsWith("\nOn GitHub Copilot, load pstack skills")).toBe(true);
+  expect(notes.startsWith("\nOn GitHub Copilot, load laurenify skills")).toBe(true);
   for (const block of notes.split("\n\n").slice(2)) expect(starts.some((s) => block.startsWith(s))).toBe(true);
   return mandate;
 }
@@ -147,7 +147,7 @@ function context(out, starts) {
 const PANEL = "claude-opus-5, gpt-5.5 @xhigh, gemini-3.8-flash";
 const sheetLines = (set = {}) =>
   models.roles.map(({ role, models: tier }) => `${role}: ${role in set ? set[role] : tier === "panel" ? PANEL : "claude-sonnet-5"}`);
-const validSheet = (extra = []) => ["# pstack model overrides", "", ...sheetLines(), ...extra, "session hook: on", ""].join("\n");
+const validSheet = (extra = []) => ["# laurenify model overrides", "", ...sheetLines(), ...extra, "session hook: on", ""].join("\n");
 
 function copilotContext(sheet) {
   const r = runHook("copilot", sheet);
@@ -204,7 +204,7 @@ describe("Copilot SessionStart context", () => {
   // The shipped texts hold no character JSON must escape; a copy of the hooks
   // with such characters shows the output stays one JSON object.
   test("escapes the texts it adds to the JSON output", () => {
-    const root = mkdtempSync(join(tmpdir(), "pstack-esc-"));
+    const root = mkdtempSync(join(tmpdir(), "laurenify-esc-"));
     try {
       cpSync(join(pluginRoot, "hooks"), join(root, "hooks"), { recursive: true });
       cpSync(join(pluginRoot, "skills/setup-pstack/scripts"), join(root, "skills/setup-pstack/scripts"), { recursive: true });
@@ -245,7 +245,7 @@ describe("Copilot SessionStart context", () => {
   });
 
   test("each runtime reads only its own sheet", () => {
-    const home = mkdtempSync(join(tmpdir(), "pstack-hook-"));
+    const home = mkdtempSync(join(tmpdir(), "laurenify-hook-"));
     try {
       const run = (runtime) =>
         spawnSync("sh", ["-c", sessionStart[runtime].hooks[0].command], {
@@ -277,7 +277,7 @@ const museManifest = JSON.parse(readFileSync(join(pluginRoot, ".muse-plugin/plug
 // Muse declares the hook inline in its native manifest and runs it with
 // MUSE_PLUGIN_ROOT set; its stdout is plain additional context.
 function runMuseHook(sheet, env = {}) {
-  const home = mkdtempSync(join(tmpdir(), "pstack-hook-"));
+  const home = mkdtempSync(join(tmpdir(), "laurenify-hook-"));
   const config = env.XDG_CONFIG_HOME ?? join(home, ".config");
   if (sheet !== null) {
     const dir = join(config, "muse");
@@ -324,7 +324,7 @@ describe("Muse SessionStart context", () => {
 
   test("an off sheet injects nothing, and XDG_CONFIG_HOME moves the sheet", () => {
     expect(runMuseHook("session hook: off\n")).toEqual({ status: 0, out: "", err: "" });
-    const home = mkdtempSync(join(tmpdir(), "pstack-hook-"));
+    const home = mkdtempSync(join(tmpdir(), "laurenify-hook-"));
     try {
       expect(runMuseHook("session hook: off\n", { XDG_CONFIG_HOME: join(home, "xdg") })).toEqual({ status: 0, out: "", err: "" });
     } finally {
@@ -333,7 +333,7 @@ describe("Muse SessionStart context", () => {
   });
 
   test("the Muse mandate names only skills that exist", () => {
-    const named = [...museMandate.matchAll(/plugin:pstack:([a-z0-9-]+)/g)].map((m) => m[1]);
+    const named = [...museMandate.matchAll(/plugin:laurenify:([a-z0-9-]+)/g)].map((m) => m[1]);
     const skills = new Set(agentSkills(join(pluginRoot, "skills")).map(({ name }) => name));
     expect(named).toContain("poteto-mode");
     expect(named.filter((name) => !skills.has(name))).toEqual([]);
@@ -344,8 +344,8 @@ describe("Muse SessionStart context", () => {
 // turns `\t` in the plugin root into a tab and the mandate files go unread.
 describe("a plugin root with a backslash", () => {
   test("loads the same Copilot and Muse context as any other root", () => {
-    const tmp = mkdtempSync(join(tmpdir(), "pstack-hook-"));
-    const root = join(tmp, "back\\tslash", "pstack");
+    const tmp = mkdtempSync(join(tmpdir(), "laurenify-hook-"));
+    const root = join(tmp, "back\\tslash", "laurenify");
     try {
       for (const dir of ["hooks", "skills/setup-pstack/scripts"]) cpSync(join(pluginRoot, dir), join(root, dir), { recursive: true });
       const run = (runtime, rootVar, from) =>

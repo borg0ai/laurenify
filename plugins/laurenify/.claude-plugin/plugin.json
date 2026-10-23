@@ -1,0 +1,31 @@
+{
+  "name": "laurenify",
+  "displayName": "laurenify (Claude Code port)",
+  "version": "0.9.102",
+  "description": "If you want to go fast, go deep first. laurenify helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence. Ported from cursor/plugins/pstack to Claude Code. Original pstack by Lauren Tan (poteto).",
+  "author": {
+    "name": "Michael Denyer",
+    "url": "https://github.com/michael-denyer"
+  },
+  "homepage": "https://github.com/borg0ai/laurenify",
+  "repository": "https://github.com/borg0ai/laurenify",
+  "license": "MIT",
+  "keywords": [
+    "laurenify",
+    "poteto-mode",
+    "workflow",
+    "principles",
+    "agent-style",
+    "subagents",
+    "unslop",
+    "claude-code",
+    "skills",
+    "tdd",
+    "code-review",
+    "parallel-agents",
+    "codex",
+    "opencode",
+    "gemini-cli",
+    "prime-agent"
+  ]
+}

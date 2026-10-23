@@ -1,4 +1,4 @@
-// The runtimes other than Claude Code that pstack ships to: the table the
+// The runtimes other than Claude Code that laurenify ships to: the table the
 // generator iterates, with each runtime's Model names renderer, models.json
 // check, versioned manifest, packaging validator, and hooks files.
 
@@ -150,7 +150,7 @@ export function validateMuseManifest(manifest, { claude, pathExists }) {
   }
 }
 
-// The pstack Pi extension resolves each Claude alias a skill names through the
+// The laurenify Pi extension resolves each Claude alias a skill names through the
 // table of the session's provider, or the fallback table on any other provider,
 // so every table maps exactly the available aliases to that provider's models.
 function checkPiModels(pi, { raw, fail, isObject }) {
@@ -240,7 +240,7 @@ export function piModelNamesSection(models) {
     models.available.map((alias) => `| ${code(alias)} | ${columns.map((p) => code(tables[p][alias])).join(" | ")} |`).join("\n");
   return (
     "Skills name models by the Claude aliases in their Models sections. On Pi, pass the alias as the `agent` " +
-    "tool's `model`. The pstack extension resolves it in the column of the provider the session's current model " +
+    "tool's `model`. The laurenify extension resolves it in the column of the provider the session's current model " +
     `comes from, and in the ${code(fallback)} column for any other provider:\n\n` +
     table +
     "\n\nPi warns that Anthropic bills Claude used through Pi per token, as extra usage, even on a Claude subscription. " +
@@ -319,7 +319,7 @@ export function copilotModelNamesSection(models) {
     "and policy, so the user picks them once.\n\n" +
     "- The model sheet is `${COPILOT_HOME:-~/.copilot}/pstack-models.md`. It sits outside the workspace, so reading it " +
     "asks for path access. The plugin's SessionStart hook reads it, checks it, and adds its role lines to the " +
-    "session context as the user's saved pstack model choices. Take role models from that block and do not `view` the " +
+    "session context as the user's saved laurenify model choices. Take role models from that block and do not `view` the " +
     "sheet. A role line names the model for that role.\n" +
     "- Read the sheet only when that block and the hook's `sheet invalid` or no-sheet note are all missing, as in a " +
     "skills-only install with no hook. `view`, `create`, and `edit` take literal paths and expand neither `~` nor " +
@@ -332,8 +332,8 @@ export function copilotModelNamesSection(models) {
     "later sessions get them from the hook. Do not ask again on later runs.\n" +
     "- A role line in the sheet is the user's explicit model instruction, so pass it as the `task` tool's " +
     "`model` parameter. `inherit-parent` or `auto` omits `model`.\n" +
-    "- The plugin's `PreToolUse` hook enforces this for pstack agents. While the sheet is valid, it denies a `task` " +
-    "call whose `agent_type` starts with `pstack:` and whose `model` is not one of the sheet's values, and its reason " +
+    "- The plugin's `PreToolUse` hook enforces this for laurenify agents. While the sheet is valid, it denies a `task` " +
+    "call whose `agent_type` starts with `laurenify:` and whose `model` is not one of the sheet's values, and its reason " +
     "lists the saved IDs. Retry with the role's saved model; never retry on another unsaved model. It leaves calls " +
     "with no `model` and other agent types alone.\n" +
     `- Roles that default to the worker model (${tierRoles(models, "worker")}): the worker model the user chose.\n` +
@@ -341,7 +341,7 @@ export function copilotModelNamesSection(models) {
     "the strongest model the user chose.\n" +
     "- Diverse-model panels (`arena`, `architect`, `interrogate`, `how` critics, `reflect`): the adversarial " +
     "signal comes from model diversity, so fill a panel from distinct vendors in the `task` tool's `model` " +
-    "list (Claude, GPT, Gemini, Grok, and so on). pstack ships no default Copilot panel. If only one vendor is " +
+    "list (Claude, GPT, Gemini, Grok, and so on). laurenify ships no default Copilot panel. If only one vendor is " +
     "reachable, vary reasoning effort and note in the verdict that diversity was reduced.\n\n" +
     "`setup-pstack` lists the models from the `model` enum of the `task` tool and writes only IDs it saw there. " +
     "After it writes the sheet, it runs its `check-sheet.sh` script, which applies the hook's checks.\n\n" +

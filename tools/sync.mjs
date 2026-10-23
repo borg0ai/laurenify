@@ -48,7 +48,7 @@
 // A failed run writes nothing, leaving the tree for inspection.
 // The pin in upstream.json is advanced only when the run succeeds, which it
 // can with conflicts: the markers are in the tree, and generate.mjs fails on
-// any marker line under plugins/pstack, so CI rejects an unresolved sync.
+// any marker line under plugins/laurenify, so CI rejects an unresolved sync.
 // With --dry-run nothing is written and the pin stays; passing the pinned SHA
 // as <new-sha> under --dry-run prints the ownership map. At the pin an upstream
 // file the port lacks fails the run, since a sync to a new SHA would write it
@@ -202,7 +202,7 @@ const isBinary = (rel, raw) => BINARY.test(rel) || raw.includes(0) || !Buffer.fr
 // does not hold outside a repository, where git 2.54 still applies the global
 // setting.
 export function mergeFile(ours, base, theirs) {
-  const scratch = mkdtempSync(join(tmpdir(), "pstack-merge-"));
+  const scratch = mkdtempSync(join(tmpdir(), "laurenify-merge-"));
   try {
     const paths = { ours, base, theirs };
     for (const [name, buffer] of Object.entries(paths)) writeFileSync(join(scratch, name), buffer);
@@ -226,7 +226,7 @@ export function mergeFile(ours, base, theirs) {
 // Call only on differing bytes. `--no-index` exits 1 when the two differ, and
 // also on errors, which print no numstat line.
 export function changedLines(base, kept) {
-  const scratch = mkdtempSync(join(tmpdir(), "pstack-diff-"));
+  const scratch = mkdtempSync(join(tmpdir(), "laurenify-diff-"));
   try {
     writeFileSync(join(scratch, "kept"), kept);
     const args = ["diff", "--no-index", "--numstat", "--text", "-", join(scratch, "kept")];
@@ -523,7 +523,7 @@ function main() {
   const models = loadModels(repo);
   const leads = loadLeadLines(repo);
 
-  const scratch = mkdtempSync(join(tmpdir(), "pstack-sync-"));
+  const scratch = mkdtempSync(join(tmpdir(), "laurenify-sync-"));
   try {
     console.log(`cloning ${upstream.remote} ...`);
     git(["clone", "--filter=blob:none", upstream.remote, join(scratch, "clone")]);

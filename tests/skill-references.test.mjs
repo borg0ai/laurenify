@@ -10,12 +10,13 @@ import { fileURLToPath } from "node:url";
 import { agentSkills } from "../tools/generate.mjs";
 import { markdownFiles } from "../tools/validate-skills.mjs";
 
-const skillsDir = fileURLToPath(new URL("../plugins/pstack/skills", import.meta.url));
+const skillsDir = fileURLToPath(new URL("../plugins/laurenify/skills", import.meta.url));
 const names = new Set(agentSkills(skillsDir).map((s) => s.name));
 const principles = new Set([...names].filter((n) => n.startsWith("principle-")));
 
-// Runtime built-ins, the Pi extension's /pstack-agents, and explanatory mentions of Cursor commands.
-const BUILT_IN_SLASH = new Set(["pstack-agents", "loop", "run", "verify", "command", "goal", "name", "compact", "clear", "hooks", "fleet", "add-dir", "resume"]);
+// Runtime built-ins, the Pi extension's /laurenify-agents, and separately installed skills.
+const BUILT_IN_SLASH = new Set(["laurenify-agents", "loop", "run", "verify", "command", "goal", "name", "compact", "clear", "hooks", "fleet", "add-dir", "resume"]);
+const EXTERNAL_SLASH = new Set(["specify"]);
 
 function references(text) {
   const found = [];
@@ -25,7 +26,7 @@ function references(text) {
   }
   for (const m of text.matchAll(/\(\*\*(principle-[a-z0-9-]+)\*\*\)/g)) found.push({ kind: "principle", name: m[1] });
   for (const m of text.matchAll(/`\/([a-z][a-z0-9-]*)`/g)) {
-    if (!BUILT_IN_SLASH.has(m[1])) found.push({ kind: "slash", name: m[1] });
+    if (!BUILT_IN_SLASH.has(m[1]) && !EXTERNAL_SLASH.has(m[1])) found.push({ kind: "slash", name: m[1] });
   }
   return found;
 }
@@ -39,6 +40,13 @@ describe("prose skill references", () => {
       }
     }
     expect(dangling).toEqual([]);
+  });
+
+  test("RFC lifecycle routes to the separately installed Specify skill", () => {
+    const router = readFileSync(join(skillsDir, "poteto-mode/SKILL.md"), "utf8");
+    const help = readFileSync(join(skillsDir, "poteto-help/SKILL.md"), "utf8");
+    expect(router).toContain("separately installed **`/specify`** skill");
+    expect(help).toContain("the separately installed `/specify` skill");
   });
 
   // An index entry names its leaf as "(**principle-x**)", or the leaf is the

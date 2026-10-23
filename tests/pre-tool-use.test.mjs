@@ -1,6 +1,6 @@
 // The shipped GitHub Copilot PreToolUse command, run for real. It approves
 // `view` of the plugin's own files and strict vendored-script runs, denies
-// pstack agents on models a valid sheet does not name, and stays silent for
+// laurenify agents on models a valid sheet does not name, and stays silent for
 // everything else.
 import { afterAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const pluginRoot = fileURLToPath(new URL("../plugins/pstack/", import.meta.url));
+const pluginRoot = fileURLToPath(new URL("../plugins/laurenify/", import.meta.url));
 const preToolUse = JSON.parse(readFileSync(join(pluginRoot, "hooks/copilot-hooks.json"), "utf8")).hooks.PreToolUse;
 const command = preToolUse[0].hooks[0].command;
 const allow = '{"permissionDecision":"allow"}\n';
@@ -71,9 +71,9 @@ describe("PreToolUse hook", () => {
   });
 
   test("approves through the real path when the root is a symlink", () => {
-    const dir = mkdtempSync(join(tmpdir(), "pstack-ptu-"));
+    const dir = mkdtempSync(join(tmpdir(), "laurenify-ptu-"));
     try {
-      const link = join(dir, "pstack");
+      const link = join(dir, "laurenify");
       symlinkSync(pluginRoot, link);
       const env = { COPILOT_PLUGIN_ROOT: link };
       expect(run(claudeInput("Read", join(link, "skills/how/SKILL.md")), env).out).toBe(allow);
@@ -104,7 +104,7 @@ describe("PreToolUse hook", () => {
 
   // Copilot denies the call when the hook exits non-zero.
   test("exits 0 with no decision and reports the error when awk fails", () => {
-    const bin = mkdtempSync(join(tmpdir(), "pstack-ptu-bin-"));
+    const bin = mkdtempSync(join(tmpdir(), "laurenify-ptu-bin-"));
     try {
       writeFileSync(join(bin, "awk"), "#!/bin/sh\necho 'awk: broken' >&2\nexit 2\n", { mode: 0o755 });
       const r = spawnSync("sh", ["-c", command], {
@@ -119,7 +119,7 @@ describe("PreToolUse hook", () => {
   });
 
   test("drops a decision from an awk run that fails", () => {
-    const bin = mkdtempSync(join(tmpdir(), "pstack-ptu-bin-"));
+    const bin = mkdtempSync(join(tmpdir(), "laurenify-ptu-bin-"));
     try {
       writeFileSync(join(bin, "awk"), `#!/bin/sh\nprintf '%s\\n' '${allow.trim()}'\nexit 2\n`, { mode: 0o755 });
       const r = spawnSync("sh", ["-c", command], {
@@ -142,7 +142,7 @@ const deny = (out) => {
   return d.permissionDecisionReason;
 };
 
-const home = mkdtempSync(join(tmpdir(), "pstack-ptu-home-"));
+const home = mkdtempSync(join(tmpdir(), "laurenify-ptu-home-"));
 const copilotHome = join(home, ".copilot");
 mkdirSync(copilotHome);
 const sheetPath = join(copilotHome, "pstack-models.md");
@@ -159,7 +159,7 @@ function sheet({ one = "gpt-5.5", strong = "claude-opus-5.5", panel = "claude-so
     const v = set[r] ?? (PANELS.has(r) ? panel : ["bug-fix", "perf-issue", "hillclimb", "strongest judgment"].includes(r) ? strong : one);
     return `${r}: ${v}`;
   });
-  return `# pstack model configuration\n\nPer-role model choices: header text.\n\n${lines.join("\n")}\n\nsession hook: on\n${extra}`;
+  return `# laurenify model configuration\n\nPer-role model choices: header text.\n\n${lines.join("\n")}\n\nsession hook: on\n${extra}`;
 }
 
 const env = { COPILOT_PLUGIN_ROOT: pluginRoot, COPILOT_HOME: copilotHome, HOME: home };
@@ -172,8 +172,8 @@ const runWith = (sheetText, payload, extraEnv = {}) => {
 };
 const quiet = { status: 0, out: "", err: "" };
 
-describe("PreToolUse model check for pstack agents", () => {
-  const agent = (model, agent_type = "pstack:poteto-agent") =>
+describe("PreToolUse model check for laurenify agents", () => {
+  const agent = (model, agent_type = "laurenify:poteto-agent") =>
     input("Agent", { agent_type, model, mode: "background", name: "w", prompt: "do it" });
 
   test("allows by silence a model the sheet names, in any role or panel slot", () => {
@@ -186,7 +186,7 @@ describe("PreToolUse model check for pstack agents", () => {
     const r = runWith(sheet(), agent("claude-haiku-4.5"));
     expect(r.status).toBe(0);
     const reason = deny(r.out);
-    expect(reason).toContain("`claude-haiku-4.5` is not one of the user's saved pstack model choices");
+    expect(reason).toContain("`claude-haiku-4.5` is not one of the user's saved laurenify model choices");
     expect(reason).toContain("one of `gpt-5.5`, `claude-opus-5.5`, `claude-sonnet-5`, `gemini-3.8-flash`.");
     expect(reason.match(/`gpt-5.5`/g)).toHaveLength(1);
     expect(reason).toContain("setup-pstack");
@@ -200,7 +200,7 @@ describe("PreToolUse model check for pstack agents", () => {
   });
 
   test("the camelCase task form is checked too", () => {
-    const payload = JSON.stringify({ toolName: "task", toolArgs: { agent_type: "pstack:comment-sicko", model: "o9" } });
+    const payload = JSON.stringify({ toolName: "task", toolArgs: { agent_type: "laurenify:comment-sicko", model: "o9" } });
     expect(deny(runWith(sheet(), payload).out)).toContain("`o9`");
   });
 
@@ -216,10 +216,10 @@ describe("PreToolUse model check for pstack agents", () => {
   });
 
   const silent = {
-    "a call with no model": [sheet(), input("Agent", { agent_type: "pstack:poteto-agent", prompt: "x" })],
+    "a call with no model": [sheet(), input("Agent", { agent_type: "laurenify:poteto-agent", prompt: "x" })],
     "an empty model": [sheet(), agent("")],
-    "a non-pstack agent": [sheet(), agent("claude-haiku-4.5", "general-purpose")],
-    "an agent type that only contains pstack:": [sheet(), agent("claude-haiku-4.5", "my-pstack:agent")],
+    "a non-laurenify agent": [sheet(), agent("claude-haiku-4.5", "general-purpose")],
+    "an agent type that only contains laurenify:": [sheet(), agent("claude-haiku-4.5", "my-laurenify:agent")],
     "no sheet": [null, agent("claude-haiku-4.5")],
     "a sheet with no role lines": ["session hook: on\n", agent("claude-haiku-4.5")],
     "a sheet missing a role": [sheet({ drop: "hillclimb" }), agent("claude-haiku-4.5")],
@@ -298,9 +298,9 @@ describe("PreToolUse vendored script runs", () => {
   }
 
   test("approves through the real path when the root is a symlink", () => {
-    const dir = mkdtempSync(join(tmpdir(), "pstack-ptu-"));
+    const dir = mkdtempSync(join(tmpdir(), "laurenify-ptu-"));
     try {
-      const link = join(dir, "pstack");
+      const link = join(dir, "laurenify");
       symlinkSync(pluginRoot, link);
       const e = { ...env, COPILOT_PLUGIN_ROOT: link };
       expect(run(bash(`node ${link}/skills/reflect/scripts/find-transcript.mjs ${workspace} prompt`), e).out).toBe(allow);

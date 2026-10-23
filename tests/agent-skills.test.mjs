@@ -24,7 +24,7 @@ import { codexModelNamesSection } from "../tools/runtimes.mjs";
 import { validateProsePaths, validateSkillsTree, walk } from "../tools/validate-skills.mjs";
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
-const skillsDir = join(repoRoot, "plugins/pstack/skills");
+const skillsDir = join(repoRoot, "plugins/laurenify/skills");
 const requiredPortableFiles = [
   "poteto-mode/references/agents/comment-sicko.md",
   "poteto-mode/references/licenses/LICENSE",
@@ -45,7 +45,7 @@ describe("shared Agent Skills tree", () => {
   });
 
   test("prose naming a real plugin file outside the skills tree fails the boundary check", () => {
-    const plugin = mkdtempSync(join(tmpdir(), "pstack-prose-paths-"));
+    const plugin = mkdtempSync(join(tmpdir(), "laurenify-prose-paths-"));
     const root = join(plugin, "skills");
     try {
       mkdirSync(join(plugin, "agents"), { recursive: true });
@@ -67,7 +67,7 @@ describe("shared Agent Skills tree", () => {
   });
 
   test("prose paths that resolve inside the tree or to nothing are left alone", () => {
-    const plugin = mkdtempSync(join(tmpdir(), "pstack-prose-allowed-"));
+    const plugin = mkdtempSync(join(tmpdir(), "laurenify-prose-allowed-"));
     const root = join(plugin, "skills");
     try {
       mkdirSync(join(plugin, "hooks"), { recursive: true });
@@ -81,7 +81,7 @@ describe("shared Agent Skills tree", () => {
           "",
           "Read `../playbooks/babysit.md` first.",
           "Write the log to `/tmp/<slug>-resume.md` and run `/setup-pstack`.",
-          "Edit `plugins/pstack/models.json`, then rerun `tools/generate.mjs`.",
+          "Edit `plugins/laurenify/models.json`, then rerun `tools/generate.mjs`.",
           "Cursor keeps rules in `.cursor/rules/`; Claude Code has no `hooks/nope.md`.",
         ].join("\n"),
       );
@@ -92,7 +92,7 @@ describe("shared Agent Skills tree", () => {
   });
 
   test("walk returns a sorted listing regardless of directory order", () => {
-    const root = mkdtempSync(join(tmpdir(), "pstack-walk-"));
+    const root = mkdtempSync(join(tmpdir(), "laurenify-walk-"));
     try {
       for (const name of ["zeta", "alpha", "mid"]) {
         mkdirSync(join(root, name));
@@ -109,7 +109,7 @@ describe("shared Agent Skills tree", () => {
   });
 
   test("an installed node_modules under a skill is not validated", () => {
-    const root = mkdtempSync(join(tmpdir(), "pstack-skills-links-"));
+    const root = mkdtempSync(join(tmpdir(), "laurenify-skills-links-"));
     const vendored = join(root, "example/scripts/node_modules/dep");
     mkdirSync(vendored, { recursive: true });
     writeFileSync(join(root, "example/SKILL.md"), "# Example\n");
@@ -124,7 +124,7 @@ describe("shared Agent Skills tree", () => {
   });
 
   test("a bare missing markdown target fails the boundary check", () => {
-    const root = mkdtempSync(join(tmpdir(), "pstack-skills-links-"));
+    const root = mkdtempSync(join(tmpdir(), "laurenify-skills-links-"));
     const skill = join(root, "example");
     mkdirSync(skill);
     writeFileSync(
@@ -140,7 +140,7 @@ describe("shared Agent Skills tree", () => {
   });
 
   test("bare, dotted, and reference-style local links resolve inside the boundary", () => {
-    const root = mkdtempSync(join(tmpdir(), "pstack-skills-links-"));
+    const root = mkdtempSync(join(tmpdir(), "laurenify-skills-links-"));
     const skill = join(root, "example");
     const references = join(skill, "references");
     mkdirSync(references, { recursive: true });
@@ -165,7 +165,7 @@ describe("shared Agent Skills tree", () => {
   });
 
   test("an escaping markdown target fails the boundary check", () => {
-    const root = mkdtempSync(join(tmpdir(), "pstack-skills-links-"));
+    const root = mkdtempSync(join(tmpdir(), "laurenify-skills-links-"));
     const skill = join(root, "example");
     mkdirSync(skill);
     writeFileSync(join(skill, "SKILL.md"), "[escape](../../outside.md)\n");
@@ -180,7 +180,7 @@ describe("shared Agent Skills tree", () => {
   });
 
   test("a markdown symlink target cannot escape the boundary", () => {
-    const parent = mkdtempSync(join(tmpdir(), "pstack-skills-links-"));
+    const parent = mkdtempSync(join(tmpdir(), "laurenify-skills-links-"));
     const root = join(parent, "skills");
     const skill = join(root, "example");
     const outside = join(parent, "outside.md");
@@ -217,13 +217,13 @@ describe("shared Agent Skills tree", () => {
   test("the plan copies each portable asset from its source into a directory it owns", () => {
     const { files, ownedDirs } = plan(repoRoot);
     for (const { source, target } of PORTABLE_ASSETS) {
-      expect(files[`plugins/pstack/skills/${target}`]).toBe(readFileSync(join(repoRoot, source), "utf8"));
-      expect(ownedDirs).toContain(`plugins/pstack/skills/${dirname(target)}`);
+      expect(files[`plugins/laurenify/skills/${target}`]).toBe(readFileSync(join(repoRoot, source), "utf8"));
+      expect(ownedDirs).toContain(`plugins/laurenify/skills/${dirname(target)}`);
     }
   });
 
   test("linked skills keep their own resources and sibling principle leaves", () => {
-    const root = mkdtempSync(join(tmpdir(), "pstack-agent-skills-"));
+    const root = mkdtempSync(join(tmpdir(), "laurenify-agent-skills-"));
     const installed = join(root, "unrelated-home", ".agents", "skills");
     mkdirSync(installed, { recursive: true });
 
@@ -248,7 +248,7 @@ describe("shared Agent Skills tree", () => {
 
 describe("agentSkills reads frontmatter as YAML", () => {
   function readSkill(name, text) {
-    const root = mkdtempSync(join(tmpdir(), "pstack-frontmatter-"));
+    const root = mkdtempSync(join(tmpdir(), "laurenify-frontmatter-"));
     try {
       mkdirSync(join(root, name));
       writeFileSync(join(root, name, "SKILL.md"), text);
@@ -285,7 +285,7 @@ describe("agentSkills reads frontmatter as YAML", () => {
 
 describe("Codex model names", () => {
   test("names a worker and a strongest Codex model for the roles that default to each on Claude", () => {
-    const raw = JSON.parse(readFileSync(join(repoRoot, "plugins/pstack/models.json"), "utf8"));
+    const raw = JSON.parse(readFileSync(join(repoRoot, "plugins/laurenify/models.json"), "utf8"));
     const oneOff = raw.roles.map((r) => (r.role === "swarm workers" ? { ...r, models: ["haiku"] } : r));    const section = codexModelNamesSection(resolveModels({ ...raw, roles: oneOff }));
     const lineWith = (text) => section.split("\n").find((line) => line.includes(text));
     const strongestLine = lineWith("strongest Claude model");

@@ -4,8 +4,8 @@ import { spawn, spawnSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { lineSplitter } from "../../plugins/pstack/pi/child.ts";
-import { parseSheet } from "../../plugins/pstack/pi/config.ts";
+import { lineSplitter } from "../../plugins/laurenify/pi/child.ts";
+import { parseSheet } from "../../plugins/laurenify/pi/config.ts";
 import { readEntries, sleep } from "./harness.mjs";
 
 export const MINUTE = 60_000;
@@ -100,7 +100,7 @@ export class PiRpc {
   }
 
   notices(from = 0) {
-    return this.messages(from).filter((m) => m.role === "custom" && m.customType === "pstack-agent");
+    return this.messages(from).filter((m) => m.role === "custom" && m.customType === "laurenify-agent");
   }
 
   toolResults(name, from = 0) {
@@ -122,7 +122,7 @@ export class PiRpc {
 function registry(sessionFile) {
   const byId = new Map();
   for (const e of readEntries(sessionFile)) {
-    if (e.type !== "custom" || e.customType !== "pstack-agents") continue;
+    if (e.type !== "custom" || e.customType !== "laurenify-agents") continue;
     byId.set(e.data.agent.id, [...(byId.get(e.data.agent.id) ?? []), e.data]);
   }
   return byId;

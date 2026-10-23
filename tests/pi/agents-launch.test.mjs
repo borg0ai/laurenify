@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { chmodSync, existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { install } from "../../plugins/pstack/pi/index.ts";
+import { install } from "../../plugins/laurenify/pi/index.ts";
 import { chmodDeniesReads } from "../session-hook-sheets.mjs";
 import { agentBody, agentEntry, fakeCtx, fakePi, flag, gitRepo, listAgents, recordWith, restore, useWorld, waitFor } from "./harness.mjs";
 
@@ -17,7 +17,7 @@ describe("agent tool", () => {
     for (const t of snippets) expect(t.promptSnippet.toLowerCase().startsWith(`${t.name}:`)).toBe(false);
   });
 
-  test("every pstack tool is model-only, so Pi declares it to the model in every codemode mode and never defers it", () => {
+  test("every laurenify tool is model-only, so Pi declares it to the model in every codemode mode and never defers it", () => {
     const { pi } = setup();
     const exposures = Object.fromEntries([...pi.tools.values()].map((t) => [t.name, t.exposure]));
     expect(exposures).toEqual({
@@ -54,11 +54,11 @@ describe("agent tool", () => {
     expect(await excludedAt(2, { readonly: true })).toBe("edit,write,agent");
   });
 
-  test("every pstack agent type reaches its child with its own agent file as the system prompt", async () => {
+  test("every laurenify agent type reaches its child with its own agent file as the system prompt", async () => {
     const { w, pi, ctx } = setup();
     const files = {
-      "pstack:poteto-agent": "agents/poteto-agent.md",
-      "pstack:comment-sicko": "agents/comment-sicko.md",
+      "laurenify:poteto-agent": "agents/poteto-agent.md",
+      "laurenify:comment-sicko": "agents/comment-sicko.md",
     };
     for (const type of Object.keys(files)) await pi.call("agent", { description: type, prompt: "x", subagent_type: type }, ctx);
     expect(w.invocations().map((inv) => inv.systemPrompt)).toEqual(Object.values(files).map(agentBody));
@@ -68,17 +68,17 @@ describe("agent tool", () => {
     const { w, pi, ctx } = setup();
     const err = await pi.call("agent", { description: "x", prompt: "x", subagent_type: "poteto-agent" }, ctx).catch((e) => e);
     expect(err.message).toContain('Unknown subagent_type "poteto-agent"');
-    for (const t of ["general-purpose", "pstack:poteto-agent", "pstack:comment-sicko"]) {
+    for (const t of ["general-purpose", "laurenify:poteto-agent", "laurenify:comment-sicko"]) {
       expect(err.message).toContain(t);
     }
     expect(err.message).not.toContain("effort-");
     expect(w.invocations()).toEqual([]);
   });
 
-  test("the effort parameter passes --thinking to any agent type, keeps a pstack agent's body as a 0600 system prompt file, and no effort runs at the parent's level", async () => {
+  test("the effort parameter passes --thinking to any agent type, keeps a laurenify agent's body as a 0600 system prompt file, and no effort runs at the parent's level", async () => {
     const { w, pi, ctx } = setup();
     await pi.call("agent", { description: "e", prompt: "x", subagent_type: "general-purpose", effort: "xhigh" }, ctx);
-    await pi.call("agent", { description: "p", prompt: "x", subagent_type: "pstack:poteto-agent", effort: "high" }, ctx);
+    await pi.call("agent", { description: "p", prompt: "x", subagent_type: "laurenify:poteto-agent", effort: "high" }, ctx);
     await pi.call("agent", { description: "g", prompt: "x", subagent_type: "general-purpose" }, ctx);
     const [effort, poteto, general] = w.invocations();
 
@@ -96,13 +96,13 @@ describe("agent tool", () => {
     const err = await pi.call("agent", { description: "x", prompt: "x", effort: "turbo" }, ctx).catch((e) => e);
     expect(err.message).toContain('effort "turbo" is not one of low, medium, high, xhigh, max');
     expect(w.invocations()).toEqual([]);
-    expect(existsSync(join(w.agentDir, "pstack", "parent-session"))).toBe(false);
+    expect(existsSync(join(w.agentDir, "laurenify", "parent-session"))).toBe(false);
   });
 
   test("a resume whose system prompt file is gone writes it again, since pi would append the missing path as the prompt text", async () => {
     const { w, pi, ctx } = setup();
-    await pi.call("agent", { description: "p", prompt: "first", subagent_type: "pstack:poteto-agent" }, ctx);
-    rmSync(join(w.agentDir, "pstack", "parent-session", "prompts"), { recursive: true });
+    await pi.call("agent", { description: "p", prompt: "first", subagent_type: "laurenify:poteto-agent" }, ctx);
+    rmSync(join(w.agentDir, "laurenify", "parent-session", "prompts"), { recursive: true });
     await pi.call("send_message", { to: "p", message: "again" }, ctx);
     await waitFor(() => pi.messages.length === 1);
     const [first, second] = w.invocations();
@@ -113,14 +113,14 @@ describe("agent tool", () => {
 
   test("a resume whose system prompt file is gone and whose type no longer has one fails, and no child starts", async () => {
     const { w, pi, ctx } = setup();
-    await pi.call("agent", { description: "p", prompt: "first", subagent_type: "pstack:poteto-agent" }, ctx);
-    rmSync(join(w.agentDir, "pstack", "parent-session", "prompts"), { recursive: true });
-    const removedType = recordWith(pi.entries.at(-1).data, { agent: { subagentType: "pstack:removed" } });
+    await pi.call("agent", { description: "p", prompt: "first", subagent_type: "laurenify:poteto-agent" }, ctx);
+    rmSync(join(w.agentDir, "laurenify", "parent-session", "prompts"), { recursive: true });
+    const removedType = recordWith(pi.entries.at(-1).data, { agent: { subagentType: "laurenify:removed" } });
 
     const resumed = await restore(w, [agentEntry(removedType)]);
     const err = await resumed.call("send_message", { to: "p", message: "again" }, ctx).catch((e) => e);
     expect(err).toBeInstanceOf(Error);
-    expect(err.message).toContain('its type "pstack:removed" no longer provides one');
+    expect(err.message).toContain('its type "laurenify:removed" no longer provides one');
     expect(w.invocations()).toHaveLength(1);
     expect((await listAgents(resumed, ctx)).map((a) => a.status)).toEqual(["failed"]);
   });
@@ -128,11 +128,11 @@ describe("agent tool", () => {
   test("a system prompt file that cannot be written fails the launch before a worktree or its branch is made", async () => {
     const { w, pi, ctx } = setup();
     const git = gitRepo(w.cwd);
-    const state = join(w.agentDir, "pstack", "parent-session");
+    const state = join(w.agentDir, "laurenify", "parent-session");
     mkdirSync(state, { recursive: true });
     writeFileSync(join(state, "prompts"), "a file where the prompts directory belongs");
 
-    const err = await pi.call("agent", { description: "wt", prompt: "x", subagent_type: "pstack:poteto-agent", isolation: "worktree" }, ctx).catch((e) => e);
+    const err = await pi.call("agent", { description: "wt", prompt: "x", subagent_type: "laurenify:poteto-agent", isolation: "worktree" }, ctx).catch((e) => e);
     expect(err).toBeInstanceOf(Error);
     expect(git("worktree", "list").split("\n")).toHaveLength(1);
     expect(git("branch", "--list").split("\n")).toHaveLength(1);

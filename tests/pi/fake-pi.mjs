@@ -209,7 +209,7 @@ log({
   prompt,
   cwd: process.cwd(),
   pid: process.pid,
-  depth: flag("--pstack-depth") ?? null,
+  depth: flag("--laurenify-depth") ?? null,
   // As pi: a value that names no file is appended as the prompt text itself.
   systemPrompt: systemFile && existsSync(systemFile) ? readFileSync(systemFile, "utf8") : (systemFile ?? null),
 });

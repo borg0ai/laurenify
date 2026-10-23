@@ -1,7 +1,7 @@
-// The pstack Pi extension end to end on real pi and real models. Skipped unless
+// The laurenify Pi extension end to end on real pi and real models. Skipped unless
 // PSTACK_PI_LIVE=1. Each run builds a throwaway PI_CODING_AGENT_DIR with the
 // user's credentials symlinked in and this repo installed as a package, so
-// children load pstack too. Nothing under ~/.pi is written.
+// children load laurenify too. Nothing under ~/.pi is written.
 //
 // The aliases resolve through the shipped models.json table of
 // PSTACK_PI_LIVE_PROVIDER (default openai), or through the `pi models:`
@@ -14,16 +14,16 @@ import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { openingPrompt } from "../../plugins/pstack/skills/reflect/scripts/find-transcript.mjs";
+import { openingPrompt } from "../../plugins/laurenify/skills/reflect/scripts/find-transcript.mjs";
 import { agentBody, alive as pidAlive, gitRepo, pluginRoot, readEntries, sleep } from "./harness.mjs";
 import { agentByDescription, assistantModels, childEntries, descendants, findSessionFile, jsonLines, liveModels, MINUTE, PiRpc, processTable, sections, textOf } from "./live-harness.mjs";
 
 const LIVE = process.env.PSTACK_PI_LIVE === "1";
 const repoRoot = fileURLToPath(new URL("../../", import.meta.url));
-const { sheet: SHEET, models: MODELS } = liveModels(pluginRoot, "# pstack live test sheet\n\n");
+const { sheet: SHEET, models: MODELS } = liveModels(pluginRoot, "# laurenify live test sheet\n\n");
 const PARENT_MODEL = MODELS.get("sonnet");
 const MANDATE = readFileSync(join(pluginRoot, "hooks/session-start-context.md"), "utf8");
-const MANDATE_KEY = "pstack-session-start";
+const MANDATE_KEY = "laurenify-session-start";
 const SHEET_KEY = "pstack-models";
 // Pi stores an extension's prompt section wrapped in a tag named by its key.
 const tagged = (key, text) => `<${key}>\n${text}\n</${key}>`;
@@ -53,10 +53,10 @@ function parentSessionFile(sessionId) {
 
 const suite = LIVE ? describe : describe.skip;
 
-suite("pstack on live pi", () => {
+suite("laurenify on live pi", () => {
   beforeAll(() => {
     // realpath: macOS's tmpdir is a symlink, and git reports the worktree's real path.
-    root = realpathSync(mkdtempSync(join(tmpdir(), "pstack-pi-live-")));
+    root = realpathSync(mkdtempSync(join(tmpdir(), "laurenify-pi-live-")));
     agentDir = join(root, "agent");
     work = join(root, "work");
     mkdirSync(agentDir);
@@ -243,14 +243,14 @@ suite("pstack on live pi", () => {
   );
 
   test(
-    "effort: the effort parameter runs a pstack:poteto-agent child at thinking high with the poteto-agent body as its system prompt",
+    "effort: the effort parameter runs a laurenify:poteto-agent child at thinking high with the poteto-agent body as its system prompt",
     async () => {
       await withParent(async (parent) => {
         await parent.run(
-          'Make one agent tool call in the foreground with subagent_type "pstack:poteto-agent", effort "high", description "effort", prompt "Reply with exactly one word: done". Then reply with exactly one word: ok.',
+          'Make one agent tool call in the foreground with subagent_type "laurenify:poteto-agent", effort "high", description "effort", prompt "Reply with exactly one word: done". Then reply with exactly one word: ok.',
         );
         const record = agentByDescription(await parent.sessionFile(), "effort").at(-1);
-        expect(record).toMatchObject({ status: "completed", agent: { subagentType: "pstack:poteto-agent", thinking: "high" } });
+        expect(record).toMatchObject({ status: "completed", agent: { subagentType: "laurenify:poteto-agent", thinking: "high" } });
         const child = childEntries(record);
         const levels = child.filter((e) => e.type === "thinking_level_change").map((e) => e.thinkingLevel);
         expect(levels.at(-1)).toBe("high");
@@ -264,7 +264,7 @@ suite("pstack on live pi", () => {
   );
 
   test(
-    "worktree: an isolated agent runs in its own worktree, removed when clean and kept with changes; pstack:poteto-agent carries its agent file",
+    "worktree: an isolated agent runs in its own worktree, removed when clean and kept with changes; laurenify:poteto-agent carries its agent file",
     async () => {
       await withParent(async (parent) => {
         const cleanFrom = await parent.run(
@@ -285,10 +285,10 @@ suite("pstack on live pi", () => {
         expect(git("branch", "--list", clean.agent.worktree.branch)).toBe("");
 
         const dirtyFrom = await parent.run(
-          'Make one agent tool call in the foreground with subagent_type "pstack:poteto-agent", isolation "worktree", description "wt-dirty", prompt "Use the bash tool to run exactly: echo hi > note.txt. Then reply with exactly one word: done". Then reply with exactly one word: ok.',
+          'Make one agent tool call in the foreground with subagent_type "laurenify:poteto-agent", isolation "worktree", description "wt-dirty", prompt "Use the bash tool to run exactly: echo hi > note.txt. Then reply with exactly one word: done". Then reply with exactly one word: ok.',
         );
         const dirty = agentByDescription(file, "wt-dirty").at(-1);
-        expect(dirty.agent.subagentType).toBe("pstack:poteto-agent");
+        expect(dirty.agent.subagentType).toBe("laurenify:poteto-agent");
         expect(sections(childEntries(dirty)).addendum).toContain(agentBody("agents/poteto-agent.md"));
         const [dirtyResult] = parent.toolResults("agent", dirtyFrom);
         expect(textOf(dirtyResult)).toContain(`worktree: ${dirty.agent.worktree.path} (branch ${dirty.agent.worktree.branch})`);
@@ -442,7 +442,7 @@ suite("pstack on live pi", () => {
       expect({ code, stderr: code === 0 ? "" : stderr }).toEqual({ code: 0, stderr: "" });
 
       const ends = events.filter((e) => e.type === "message_end").map((e) => e.message);
-      const noticeAt = ends.findIndex((m) => m.role === "custom" && m.customType === "pstack-agent");
+      const noticeAt = ends.findIndex((m) => m.role === "custom" && m.customType === "laurenify-agent");
       expect(noticeAt).toBeGreaterThan(-1);
       const notice = ends[noticeAt];
       expect(notice.details.status).toBe("completed");
